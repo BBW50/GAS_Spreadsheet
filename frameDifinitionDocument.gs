@@ -36,7 +36,7 @@ function insertImageInSheet() {
   sheets.forEach(function(sheet) {
     var sheetName = sheet.getName();
     
-    // ディレクトリ内のすべてのファイルを走査
+    // ディレクトリ内のすべてのファイルを操作
     var files = folder.getFiles();
     while (files.hasNext()) {
       var file = files.next();
