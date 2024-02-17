@@ -1,2 +1,2 @@
 # GAS_Spreadsheet
-Google Spreadsheetで使うGASを公開しているディレクトリです。
+Google Spreadsheetで使うGASを保管しているディレクトリです。
