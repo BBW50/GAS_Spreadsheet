@@ -1,0 +1,51 @@
+/**
+ * マスターシートからシートを作成する関数
+ */
+function createSheetsFromMaster() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet(); // 現在のスプレッドシートを取得
+  var masterSheet = spreadsheet.getSheetByName('master'); // 'master' シートを取得
+  var settingSheet = spreadsheet.getSheetByName('setting'); // 'setting' シートを取得
+
+  if (!masterSheet) {
+    Logger.log("'master' シートが見つかりません。");
+    return;
+  }
+
+  if (!settingSheet) {
+    Logger.log("'setting' シートが見つかりません。");
+    return;
+  }
+
+  // 'setting' シートで値が入力されている最後の行を検出
+  var lastRow = settingSheet.getLastRow();
+
+  // A列とB列に入力されている値を取得
+  var namesAndValues = settingSheet.getRange('A1:B' + lastRow).getValues();
+
+  namesAndValues.forEach(function(row) {
+    var newName = row[0]; // 新しいシート名
+    var valueB = row[1]; // G2セルに設定する値
+
+    if (!newName) {
+      Logger.log("シート名が設定されていません。スキップします。");
+      return; // 現在の繰り返しをスキップ
+    }
+
+    // 'master' シートをコピーして新しい名前を設定
+    var newSheet = masterSheet.copyTo(spreadsheet).setName(newName);
+
+    // 新しいシートのE2セルにシート名を設定
+    newSheet.getRange('E2').setValue(newName);
+    // 新しいシートのG2セルにB列の値を設定
+    newSheet.getRange('G2').setValue(valueB);
+
+    // 現在の日時をC3セルに設定
+    var now = new Date();
+    var formattedDate = Utilities.formatDate(now, Session.getScriptTimeZone(), "yyyy/MM/dd HH:mm:ss");
+    newSheet.getRange('C3').setValue(formattedDate);
+
+    // 新しいシートのK1セルにE2セルとG2セルの値を結合した文字列を設定
+    var combinedValue = newName + "_" + valueB;
+    newSheet.getRange('K1').setValue(combinedValue);
+  });
+}
