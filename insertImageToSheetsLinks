@@ -1,0 +1,53 @@
+/**
+ * 各シートに画像と関連情報を挿入する関数
+ */
+function insertImageToSheetsLinks() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheets = spreadsheet.getSheets();
+
+  Logger.log('Starting to process sheets.');
+
+  // JSONデータをここに直接挿入してください
+  var jsonData = [
+    { name: "Name1", url: "URL1", dateTime: "DateTime1" },
+    { name: "Name2", url: "URL2", dateTime: "DateTime2" },
+    // 必要なだけデータを追加してください
+  ];
+
+  try {
+    // JSONデータをマップに変換して、名前をキーとしてアクセスできるようにします
+    var imageUrls = jsonData.reduce(function(map, obj) {
+      map[obj.name] = {url: obj.url, dateTime: obj.dateTime};
+      return map;
+    }, {});
+
+    sheets.forEach(function(sheet) {
+      var sheetName = sheet.getName();
+      if (sheetName.indexOf('FR_') === 0) {
+        Logger.log('Processing sheet: ' + sheetName);
+        var name = sheet.getRange('K1').getValue();
+        Logger.log('Looking for URL and dateTime for name: ' + name);
+
+        var imageInfo = imageUrls[name];
+        if (imageInfo) {
+          Logger.log('Data found: URL = ' + imageInfo.url + ', dateTime = ' + imageInfo.dateTime);
+          // B5セルにURLを設定
+          sheet.getRange('B5').setValue(imageInfo.url);
+          // B6セルに画像挿入の式を設定
+          sheet.getRange('B6').setFormula('=IMAGE("' + imageInfo.url + '")');
+          // K2セルに入力時間を記録
+          sheet.getRange('K2').setValue(imageInfo.dateTime);
+          Logger.log('Data inserted in sheet: ' + sheetName);
+        } else {
+          Logger.log('Data not found for name: ' + name);
+        }
+      } else {
+        Logger.log('Skipping sheet: ' + sheetName);
+      }
+    });
+  } catch (e) {
+    Logger.log('Error: ' + e.message);
+  }
+
+  Logger.log('Finished processing sheets.');
+}
